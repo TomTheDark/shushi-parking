@@ -86,8 +86,8 @@ export default function ProfileScreen() {
 
       {/* Edit field modal */}
       {editingField && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-end">
-          <div className="w-full max-w-[430px] mx-auto bg-[#1a1a1a] rounded-t-3xl p-5">
+        <div className="fixed inset-0 bg-black/70 z-[100] flex items-end">
+          <div className="w-full max-w-[430px] mx-auto bg-[#1a1a1a] rounded-t-3xl p-5 pb-10">
             <h3 className="text-white font-semibold mb-4">Edit {fieldLabels[editingField]}</h3>
             <input
               autoFocus
