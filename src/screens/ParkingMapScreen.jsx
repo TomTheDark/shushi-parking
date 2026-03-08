@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { MapContainer, TileLayer, Marker } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { ArrowLeft, Filter, X, Zap, MapPin } from 'lucide-react'
+import { ArrowLeft, Filter, X, Zap, MapPin, Search } from 'lucide-react'
 import { mockParkings } from '../data/mockData'
 import BottomNav from '../components/BottomNav'
 
@@ -25,17 +25,30 @@ function createParkingIcon(parking) {
 }
 
 const FILTERS = ['All', 'Available', 'EV Charging', 'Covered']
+const DEFAULT_MAX_PRICE = 20
+const DEFAULT_MIN_RATING = 0
 
 export default function ParkingMapScreen() {
   const navigate = useNavigate()
   const [activeFilter, setActiveFilter] = useState('All')
   const [selectedParking, setSelectedParking] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [showFilterPanel, setShowFilterPanel] = useState(false)
+  const [maxPrice, setMaxPrice] = useState(DEFAULT_MAX_PRICE)
+  const [minRating, setMinRating] = useState(DEFAULT_MIN_RATING)
 
   const filtered = mockParkings.filter(p => {
-    if (activeFilter === 'Available') return p.availableSpots > 0
-    if (activeFilter === 'EV Charging') return p.evChargers > 0
-    if (activeFilter === 'Covered') return p.type === 'covered' || p.type === 'underground'
-    return true
+    const matchesSearch = searchQuery.trim() === '' ||
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.address.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesFilter =
+      activeFilter === 'All' ? true :
+      activeFilter === 'Available' ? p.availableSpots > 0 :
+      activeFilter === 'EV Charging' ? p.evChargers > 0 :
+      activeFilter === 'Covered' ? (p.type === 'covered' || p.type === 'underground') : true
+    const matchesPrice = p.pricePerHour <= maxPrice
+    const matchesRating = p.rating >= minRating
+    return matchesSearch && matchesFilter && matchesPrice && matchesRating
   })
 
   return (
@@ -46,11 +59,26 @@ export default function ParkingMapScreen() {
           <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-[#1a1a1a]/90 flex items-center justify-center backdrop-blur-sm">
             <ArrowLeft size={18} className="text-white" />
           </button>
-          <div className="flex-1 bg-[#1a1a1a]/90 rounded-2xl px-4 py-2.5 backdrop-blur-sm">
-            <p className="text-white text-sm font-medium">Parking Map — Geneva</p>
+          <div className="flex-1 bg-[#1a1a1a]/90 rounded-2xl px-4 py-2 backdrop-blur-sm flex items-center gap-2">
+            <Search size={14} className="text-[#8B8B8B] flex-shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search parkings…"
+              className="flex-1 bg-transparent text-white text-sm font-medium placeholder-[#8B8B8B] outline-none"
+            />
+            {searchQuery !== '' && (
+              <button onClick={() => setSearchQuery('')}>
+                <X size={14} className="text-[#8B8B8B]" />
+              </button>
+            )}
           </div>
-          <button className="w-10 h-10 rounded-full bg-[#1a1a1a]/90 flex items-center justify-center backdrop-blur-sm">
-            <Filter size={16} className="text-[#FF6B00]" />
+          <button
+            onClick={() => setShowFilterPanel(v => !v)}
+            className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-sm ${showFilterPanel ? 'bg-[#FF6B00]' : 'bg-[#1a1a1a]/90'}`}
+          >
+            <Filter size={16} className={showFilterPanel ? 'text-white' : 'text-[#FF6B00]'} />
           </button>
         </div>
         
@@ -68,6 +96,47 @@ export default function ParkingMapScreen() {
             </button>
           ))}
         </div>
+
+        {/* Advanced filter panel */}
+        {showFilterPanel && (
+          <div className="mt-2 bg-[#1a1a1a]/95 backdrop-blur-sm rounded-2xl p-4">
+            <div className="mb-3">
+              <div className="flex justify-between mb-1">
+                <span className="text-[#8B8B8B] text-xs">Max price / hour</span>
+                <span className="text-white text-xs font-semibold">CHF {maxPrice}</span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={20}
+                value={maxPrice}
+                onChange={e => setMaxPrice(Number(e.target.value))}
+                className="w-full accent-[#FF6B00]"
+              />
+            </div>
+            <div>
+              <div className="flex justify-between mb-1">
+                <span className="text-[#8B8B8B] text-xs">Min rating</span>
+                <span className="text-white text-xs font-semibold">{minRating > 0 ? `${minRating}★` : 'Any'}</span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={5}
+                step={0.5}
+                value={minRating}
+                onChange={e => setMinRating(Number(e.target.value))}
+                className="w-full accent-[#FF6B00]"
+              />
+            </div>
+            <button
+              onClick={() => { setMaxPrice(DEFAULT_MAX_PRICE); setMinRating(DEFAULT_MIN_RATING) }}
+              className="mt-3 w-full py-1.5 rounded-xl border border-[#3a3a3a] text-[#8B8B8B] text-xs"
+            >
+              Reset filters
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Map — isolation:isolate keeps Leaflet's internal z-indices from escaping */}
@@ -90,9 +159,9 @@ export default function ParkingMapScreen() {
         </MapContainer>
       </div>
 
-      {/* Selected parking bottom sheet */}
+      {/* Selected parking bottom sheet — sits above BottomNav (~65 px) */}
       {selectedParking ? (
-        <div className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl p-5 z-20 pb-8">
+        <div className="absolute bottom-0 left-0 right-0 bg-[#1a1a1a] rounded-t-3xl p-5 z-20 pb-24">
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1">
               <h3 className="text-white text-lg font-bold">{selectedParking.name}</h3>
@@ -120,7 +189,7 @@ export default function ParkingMapScreen() {
             ))}
           </div>
           
-          <div className="flex gap-2 mb-3">
+          <div className="flex gap-2 mb-4 flex-wrap">
             {selectedParking.evChargers > 0 && (
               <span className="flex items-center gap-1 bg-green-500/20 text-green-400 text-xs px-2 py-1 rounded-full">
                 <Zap size={10} /> EV Charging
@@ -142,7 +211,8 @@ export default function ParkingMapScreen() {
           </div>
         </div>
       ) : (
-        <div className="absolute bottom-16 left-0 right-0 px-4 z-20">
+        /* Legend sits just above the BottomNav (~65 px tall) */
+        <div className="absolute bottom-20 left-0 right-0 px-4 z-20">
           <div className="bg-[#1a1a1a]/90 backdrop-blur-sm rounded-2xl p-3">
             <div className="flex items-center justify-between">
               <div className="flex gap-4 text-xs text-white">
