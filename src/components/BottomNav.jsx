@@ -8,15 +8,16 @@ export default function BottomNav() {
   const tabs = [
     { icon: Home, label: 'Home', path: '/home' },
     { icon: Search, label: 'Search', path: '/parking-map' },
-    { icon: Calendar, label: 'Bookings', path: '/ticket' },
-    { icon: User, label: 'Profile', path: '/onboarding' },
+    { icon: Calendar, label: 'Bookings', path: '/bookings' },
+    { icon: User, label: 'Profile', path: '/profile' },
   ]
   
   return (
     <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#1a1a1a] border-t border-[#2a2a2a] z-50">
       <div className="flex items-center justify-around px-4 py-3">
         {tabs.map(({ icon: Icon, label, path }) => {
-          const isActive = location.pathname === path
+          const isActive = location.pathname === path ||
+            (path === '/bookings' && location.pathname === '/ticket')
           return (
             <button
               key={path}

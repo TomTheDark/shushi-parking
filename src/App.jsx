@@ -12,6 +12,8 @@ import ChargingPortsScreen from './screens/ChargingPortsScreen'
 import ParkingAreaScreen from './screens/ParkingAreaScreen'
 import PaymentScreen from './screens/PaymentScreen'
 import TicketScreen from './screens/TicketScreen'
+import BookingsScreen from './screens/BookingsScreen'
+import ProfileScreen from './screens/ProfileScreen'
 
 export default function App() {
   return (
@@ -29,6 +31,8 @@ export default function App() {
       <Route path="/parking-area" element={<ParkingAreaScreen />} />
       <Route path="/payment" element={<PaymentScreen />} />
       <Route path="/ticket" element={<TicketScreen />} />
+      <Route path="/bookings" element={<BookingsScreen />} />
+      <Route path="/profile" element={<ProfileScreen />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

@@ -66,13 +66,24 @@ export default function ActiveBookingScreen() {
         </div>
       </div>
 
-      <div className="bg-[#1a1a1a] rounded-2xl p-4 mb-6 flex items-center gap-3">
+      <div className="bg-[#1a1a1a] rounded-2xl p-4 mb-4 flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] flex items-center justify-center">
           <MapPin size={20} className="text-[#FF6B00]" />
         </div>
         <div>
           <p className="text-white font-semibold">{parking.name}</p>
           <p className="text-[#8B8B8B] text-xs">{parking.address}</p>
+        </div>
+      </div>
+
+      {/* Spot number */}
+      <div className="bg-[#FF6B00]/10 border border-[#FF6B00]/30 rounded-2xl p-4 mb-6 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[#FF6B00]/20 flex items-center justify-center">
+          <span className="text-[#FF6B00] font-bold text-sm">P</span>
+        </div>
+        <div>
+          <p className="text-[#8B8B8B] text-xs">Your Spot</p>
+          <p className="text-white font-bold text-lg">White Zone · A-013</p>
         </div>
       </div>
 
