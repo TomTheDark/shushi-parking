@@ -1,19 +1,75 @@
-import { useNavigate } from 'react-router-dom'
-import { Check, Download, Share2, MapPin, Clock, Car } from 'lucide-react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { Check, Download, Share2, MapPin, Clock, Car, ArrowLeft, Calendar } from 'lucide-react'
+import { useUser } from '../context/UserContext'
 
 const QR_PATTERN = [1,0,1,1,0,1,0,1,1,0,0,1,1,1,0,1]
 
+function formatDuration(hours) {
+  const h = Math.floor(hours)
+  const isHalf = hours % 1 !== 0
+  if (h === 0) return '30min'
+  if (!isHalf) return `${h}h`
+  return `${h}h 30min`
+}
+
+function addHoursToTime(timeStr, hours) {
+  if (!timeStr) return ''
+  const [h, m] = timeStr.split(':').map(Number)
+  const totalMins = h * 60 + m + Math.round(hours * 60)
+  const endH = Math.floor(totalMins / 60) % 24
+  const endM = totalMins % 60
+  return `${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')}`
+}
+
 export default function TicketScreen() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { t } = useUser()
+
+  const booking = location.state?.booking
+  const isScheduled = location.state?.isScheduled || booking?.isScheduled || false
+
+  const bookingId = booking?.id || 'BK-NEW'
+  const parkingName = booking?.parkingName || 'Parking Cornavin'
+  const zone = booking?.zone || 'White Zone · A-013'
+  const dateTime = booking ? `${booking.date} · ${booking.time}` : 'Jan 15, 2024 · 14:00'
+  const duration = booking?.duration ?? 2
+  const endTime = booking?.endTime || addHoursToTime(booking?.time, duration)
+  const vehicle = booking?.vehicle || 'SL 250 ML · GE 123 456'
+  const pricePerHour = booking?.pricePerHour ?? 3.5
+  const total = booking?.total ?? 7.0
+
+  const durationLabel = `${formatDuration(duration)} (${t('until')} ${endTime})`
+
+  const activityItems = isScheduled
+    ? [{ time: booking?.time || '??:??', event: t('scheduledArrival'), color: 'blue' }]
+    : [
+        { time: booking?.time || '14:00', event: t('entryRecorded'), color: 'green' },
+        { time: addHoursToTime(booking?.time, 0.08), event: t('paymentProcessed'), color: 'blue' },
+        { time: endTime || '16:00', event: t('exitTime'), color: 'orange' },
+      ]
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0a0a0a] px-5 pb-8">
-      <div className="pt-12 pb-6 text-center">
-        <div className="w-16 h-16 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center mx-auto mb-3">
-          <Check size={32} className="text-green-400" />
+      <div className="flex items-center gap-3 pt-12 pb-6">
+        <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-[#1a1a1a] flex items-center justify-center">
+          <ArrowLeft size={18} className="text-white" />
+        </button>
+        <div className="flex-1 text-center">
+          <div className="w-12 h-12 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center mx-auto mb-1">
+            {isScheduled
+              ? <Calendar size={22} className="text-green-400" />
+              : <Check size={22} className="text-green-400" />
+            }
+          </div>
+          <h1 className="text-white text-xl font-bold">
+            {isScheduled ? t('bookingScheduled') : t('bookingConfirmed')}
+          </h1>
+          <p className="text-[#8B8B8B] text-sm mt-1">
+            {isScheduled ? t('yourScheduledBooking') : t('yourParkingTicket')}
+          </p>
         </div>
-        <h1 className="text-white text-xl font-bold">Booking Confirmed!</h1>
-        <p className="text-[#8B8B8B] text-sm mt-1">Your parking ticket details</p>
+        <div className="w-10" />
       </div>
 
       {/* Ticket card */}
@@ -22,8 +78,8 @@ export default function TicketScreen() {
         <div className="bg-[#FF6B00] p-5">
           <div className="flex items-center justify-between text-white">
             <div>
-              <p className="text-sm opacity-80">Booking ID</p>
-              <p className="text-2xl font-bold tracking-wider">#BK-2024-001</p>
+              <p className="text-sm opacity-80">{t('bookingId')}</p>
+              <p className="text-2xl font-bold tracking-wider">#{bookingId}</p>
             </div>
             {/* QR placeholder */}
             <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
@@ -46,11 +102,11 @@ export default function TicketScreen() {
         {/* Details */}
         <div className="p-5 space-y-3">
           {[
-            { icon: MapPin, label: 'Location', value: 'Parking Cornavin' },
-            { icon: MapPin, label: 'Zone / Spot', value: 'White Zone · A-013' },
-            { icon: Clock, label: 'Date & Time', value: 'Jan 15, 2024 · 14:00' },
-            { icon: Clock, label: 'Duration', value: '2 hours (until 16:00)' },
-            { icon: Car, label: 'Vehicle', value: 'SL 250 ML · GE 123 456' },
+            { icon: MapPin, label: t('location'), value: parkingName },
+            { icon: MapPin, label: t('zoneSpot'), value: zone },
+            { icon: Clock, label: t('dateTime'), value: dateTime },
+            { icon: Clock, label: t('duration'), value: durationLabel },
+            { icon: Car, label: t('vehicle'), value: vehicle },
           ].map(item => (
             <div key={item.label} className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-[#242424] flex items-center justify-center flex-shrink-0">
@@ -74,29 +130,25 @@ export default function TicketScreen() {
         {/* Payment */}
         <div className="p-5">
           <div className="flex justify-between text-sm mb-1">
-            <span className="text-[#8B8B8B]">Rate</span>
-            <span className="text-white">CHF 3.50/h</span>
+            <span className="text-[#8B8B8B]">{t('rate')}</span>
+            <span className="text-white">CHF {pricePerHour}/h</span>
           </div>
           <div className="flex justify-between text-sm mb-2">
-            <span className="text-[#8B8B8B]">Duration</span>
-            <span className="text-white">2h</span>
+            <span className="text-[#8B8B8B]">{t('duration')}</span>
+            <span className="text-white">{formatDuration(duration)}</span>
           </div>
           <div className="flex justify-between font-bold">
-            <span className="text-white">Total Paid</span>
-            <span className="text-[#FF6B00] text-lg">CHF 7.00</span>
+            <span className="text-white">{isScheduled ? t('totalDue') : t('totalPaid')}</span>
+            <span className="text-[#FF6B00] text-lg">CHF {total.toFixed(2)}</span>
           </div>
         </div>
       </div>
 
       {/* Activity log */}
       <div className="bg-[#1a1a1a] rounded-2xl p-4 mb-4">
-        <h3 className="text-white font-semibold mb-3">Activity Log</h3>
-        {[
-          { time: '14:00', event: 'Entry recorded', color: 'green' },
-          { time: '14:05', event: 'Payment processed', color: 'blue' },
-          { time: '16:00', event: 'Exit time', color: 'orange' },
-        ].map(item => (
-          <div key={item.time} className="flex items-center gap-3 mb-2 last:mb-0">
+        <h3 className="text-white font-semibold mb-3">{t('activityLog')}</h3>
+        {activityItems.map((item, idx) => (
+          <div key={idx} className="flex items-center gap-3 mb-2 last:mb-0">
             <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
               item.color === 'green' ? 'bg-green-400' :
               item.color === 'blue' ? 'bg-blue-400' : 'bg-[#FF6B00]'
@@ -110,16 +162,17 @@ export default function TicketScreen() {
       {/* Actions */}
       <div className="flex gap-3 mb-4">
         <button className="flex-1 py-3 rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] text-white text-sm flex items-center justify-center gap-2">
-          <Download size={16} /> Download
+          <Download size={16} /> {t('download')}
         </button>
         <button className="flex-1 py-3 rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] text-white text-sm flex items-center justify-center gap-2">
-          <Share2 size={16} /> Share
+          <Share2 size={16} /> {t('share')}
         </button>
       </div>
 
       <button onClick={() => navigate('/home')} className="w-full py-4 rounded-2xl bg-[#FF6B00] text-white font-bold">
-        Done
+        {t('done')}
       </button>
     </div>
   )
 }
+

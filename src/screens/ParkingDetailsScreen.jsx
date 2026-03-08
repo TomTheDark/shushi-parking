@@ -1,11 +1,14 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, MapPin, Star, Clock, Car, Zap, Shield, Camera, Navigation } from 'lucide-react'
 import { mockParkings } from '../data/mockData'
+import { useUser } from '../context/UserContext'
 
 export default function ParkingDetailsScreen() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { t } = useUser()
   const parking = mockParkings.find(p => p.id === parseInt(id)) || mockParkings[0]
+  const isFull = parking.availableSpots === 0
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0a0a0a] pb-6">
@@ -37,6 +40,13 @@ export default function ParkingDetailsScreen() {
       </div>
 
       <div className="px-5 pt-5">
+        {/* Full banner */}
+        {isFull && (
+          <div className="bg-red-500/15 border border-red-500/40 rounded-2xl p-3 mb-4 text-center">
+            <p className="text-red-400 text-sm font-semibold">🚫 {t('fullParking')} — No available spots</p>
+          </div>
+        )}
+
         {/* Info grid */}
         <div className="grid grid-cols-4 gap-2 mb-5">
           {[
@@ -54,7 +64,7 @@ export default function ParkingDetailsScreen() {
 
         {/* Features */}
         <div className="mb-5">
-          <h2 className="text-white font-semibold mb-3">Features</h2>
+          <h2 className="text-white font-semibold mb-3">{t('features')}</h2>
           <div className="flex flex-wrap gap-2">
             {parking.features.map(f => (
               <span key={f} className="flex items-center gap-1.5 bg-[#1a1a1a] text-[#8B8B8B] text-xs px-3 py-1.5 rounded-full">
@@ -69,7 +79,7 @@ export default function ParkingDetailsScreen() {
 
         {/* Spot sizes */}
         <div className="mb-5">
-          <h2 className="text-white font-semibold mb-3">Spot Sizes</h2>
+          <h2 className="text-white font-semibold mb-3">{t('spotSizes')}</h2>
           <div className="flex gap-2">
             {parking.spotSizes.map(s => (
               <span key={s} className="bg-[#1a1a1a] border border-[#2a2a2a] text-white text-xs px-3 py-1.5 rounded-full capitalize">{s}</span>
@@ -79,19 +89,19 @@ export default function ParkingDetailsScreen() {
 
         {/* Spot types */}
         <div className="mb-5">
-          <h2 className="text-white font-semibold mb-3">Parking Zones</h2>
+          <h2 className="text-white font-semibold mb-3">{t('parkingZones')}</h2>
           <div className="flex gap-2">
-            {parking.spotTypes.map(t => (
-              <span key={t} className={`text-xs px-3 py-1.5 rounded-full capitalize font-medium ${
-                t === 'blue' ? 'bg-blue-500/20 text-blue-400' : 'bg-white/10 text-white'
-              }`}>{t} zone</span>
+            {parking.spotTypes.map(tp => (
+              <span key={tp} className={`text-xs px-3 py-1.5 rounded-full capitalize font-medium ${
+                tp === 'blue' ? 'bg-blue-500/20 text-blue-400' : 'bg-white/10 text-white'
+              }`}>{tp} zone</span>
             ))}
           </div>
         </div>
 
         {/* Reviews */}
         <div className="mb-6">
-          <h2 className="text-white font-semibold mb-3">Reviews</h2>
+          <h2 className="text-white font-semibold mb-3">{t('reviews')}</h2>
           {parking.reviews.map(r => (
             <div key={r.id} className="bg-[#1a1a1a] rounded-2xl p-4 mb-2">
               <div className="flex items-center justify-between mb-2">
@@ -117,16 +127,22 @@ export default function ParkingDetailsScreen() {
             className="flex-1 py-4 rounded-2xl border border-[#FF6B00] text-[#FF6B00] font-semibold text-sm flex items-center justify-center gap-2"
           >
             <Navigation size={16} />
-            Navigate
+            {t('navigate')}
           </a>
           <button
-            onClick={() => navigate(`/booking/${parking.id}`)}
-            className="flex-1 py-4 rounded-2xl bg-[#FF6B00] text-white font-semibold text-sm"
+            onClick={() => !isFull && navigate(`/booking/${parking.id}`)}
+            disabled={isFull}
+            className={`flex-1 py-4 rounded-2xl font-semibold text-sm transition-colors ${
+              isFull
+                ? 'bg-[#2a2a2a] text-[#8B8B8B] cursor-not-allowed'
+                : 'bg-[#FF6B00] text-white'
+            }`}
           >
-            Book Now
+            {isFull ? t('fullParking') : t('bookNow')}
           </button>
         </div>
       </div>
     </div>
   )
 }
+

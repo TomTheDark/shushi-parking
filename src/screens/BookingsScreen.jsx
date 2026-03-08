@@ -1,27 +1,38 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Calendar, MapPin, Clock, ChevronRight, Car, Plus } from 'lucide-react'
 import { mockBookings } from '../data/mockData'
 import BottomNav from '../components/BottomNav'
+import { useUser } from '../context/UserContext'
 
-const STATUS_STYLES = {
-  upcoming: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Upcoming' },
-  active: { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Active' },
-  completed: { bg: 'bg-[#2a2a2a]', text: 'text-[#8B8B8B]', label: 'Completed' },
+const STATUS_KEYS = {
+  upcoming: { bg: 'bg-blue-500/20', text: 'text-blue-400', labelKey: 'upcoming' },
+  active: { bg: 'bg-green-500/20', text: 'text-green-400', labelKey: 'active' },
+  completed: { bg: 'bg-[#2a2a2a]', text: 'text-[#8B8B8B]', labelKey: 'completed' },
 }
 
 export default function BookingsScreen() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { t } = useUser()
 
   const upcoming = mockBookings.filter(b => b.status === 'upcoming' || b.status === 'active')
   const past = mockBookings.filter(b => b.status === 'completed')
+  const justScheduled = location.state?.justScheduled
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0a0a0a] pb-24">
       {/* Header */}
       <div className="px-5 pt-12 pb-4 bg-[#0a0a0a]">
-        <h1 className="text-xl font-bold text-white">My Bookings</h1>
-        <p className="text-[#8B8B8B] text-sm">{mockBookings.length} reservations total</p>
+        <h1 className="text-xl font-bold text-white">{t('myBookings')}</h1>
+        <p className="text-[#8B8B8B] text-sm">{mockBookings.length} {t('reservationsTotal')}</p>
       </div>
+
+      {/* Scheduled success banner */}
+      {justScheduled && (
+        <div className="mx-5 mb-4 p-3 rounded-2xl bg-green-500/15 border border-green-500/30">
+          <p className="text-green-400 text-sm text-center">{t('bookingScheduledSuccess')}</p>
+        </div>
+      )}
 
       {/* Empty state */}
       {mockBookings.length === 0 && (
@@ -29,13 +40,13 @@ export default function BookingsScreen() {
           <div className="w-20 h-20 rounded-full bg-[#1a1a1a] flex items-center justify-center mb-4">
             <Calendar size={36} className="text-[#8B8B8B]" />
           </div>
-          <h2 className="text-white text-lg font-bold mb-2">No Bookings Yet</h2>
-          <p className="text-[#8B8B8B] text-sm text-center mb-6">Find a parking spot and make your first reservation.</p>
+          <h2 className="text-white text-lg font-bold mb-2">{t('noBookingsYet')}</h2>
+          <p className="text-[#8B8B8B] text-sm text-center mb-6">{t('findParkingAndBook')}</p>
           <button
             onClick={() => navigate('/parking-map')}
             className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#FF6B00] text-white font-semibold"
           >
-            <Plus size={16} /> Find Parking
+            <Plus size={16} /> {t('findParking')}
           </button>
         </div>
       )}
@@ -43,9 +54,14 @@ export default function BookingsScreen() {
       {/* Upcoming / active */}
       {upcoming.length > 0 && (
         <div className="px-5 mb-5">
-          <h2 className="text-white font-semibold mb-3">Upcoming</h2>
+          <h2 className="text-white font-semibold mb-3">{t('upcoming')}</h2>
           {upcoming.map(booking => (
-            <BookingCard key={booking.id} booking={booking} onPress={() => navigate('/ticket')} />
+            <BookingCard
+              key={booking.id}
+              booking={booking}
+              t={t}
+              onPress={() => navigate('/ticket', { state: { booking } })}
+            />
           ))}
         </div>
       )}
@@ -53,9 +69,14 @@ export default function BookingsScreen() {
       {/* Past bookings */}
       {past.length > 0 && (
         <div className="px-5">
-          <h2 className="text-white font-semibold mb-3">Past Bookings</h2>
+          <h2 className="text-white font-semibold mb-3">{t('pastBookings')}</h2>
           {past.map(booking => (
-            <BookingCard key={booking.id} booking={booking} onPress={() => navigate('/ticket')} />
+            <BookingCard
+              key={booking.id}
+              booking={booking}
+              t={t}
+              onPress={() => navigate('/ticket', { state: { booking } })}
+            />
           ))}
         </div>
       )}
@@ -67,7 +88,7 @@ export default function BookingsScreen() {
             onClick={() => navigate('/parking-map')}
             className="w-full py-4 rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] text-white font-medium flex items-center justify-center gap-2"
           >
-            <Plus size={16} className="text-[#FF6B00]" /> Book Another Parking
+            <Plus size={16} className="text-[#FF6B00]" /> {t('bookAnotherParking')}
           </button>
         </div>
       )}
@@ -77,8 +98,8 @@ export default function BookingsScreen() {
   )
 }
 
-function BookingCard({ booking, onPress }) {
-  const s = STATUS_STYLES[booking.status] || STATUS_STYLES.completed
+function BookingCard({ booking, onPress, t }) {
+  const s = STATUS_KEYS[booking.status] || STATUS_KEYS.completed
 
   return (
     <button
@@ -89,7 +110,7 @@ function BookingCard({ booking, onPress }) {
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${s.bg} ${s.text}`}>
-              {s.label}
+              {t(s.labelKey)}
             </span>
             <span className="text-[#8B8B8B] text-xs">#{booking.id}</span>
           </div>
@@ -114,7 +135,7 @@ function BookingCard({ booking, onPress }) {
       </div>
 
       <div className="mt-3 pt-3 border-t border-[#2a2a2a] flex items-center justify-between">
-        <span className="text-[#8B8B8B] text-xs">Total Paid</span>
+        <span className="text-[#8B8B8B] text-xs">{t('totalPaid')}</span>
         <span className="text-[#FF6B00] font-bold text-sm">CHF {booking.total.toFixed(2)}</span>
       </div>
     </button>
