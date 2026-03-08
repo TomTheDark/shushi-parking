@@ -39,7 +39,7 @@ export default function ParkingMapScreen() {
   })
 
   return (
-    <div className="flex flex-col h-screen bg-[#0a0a0a]">
+    <div className="flex flex-col h-screen bg-[#0a0a0a] relative">
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-20 pt-12 px-4">
         <div className="flex items-center gap-3 mb-3">
@@ -70,8 +70,8 @@ export default function ParkingMapScreen() {
         </div>
       </div>
 
-      {/* Map */}
-      <div className="flex-1 relative">
+      {/* Map — isolation:isolate keeps Leaflet's internal z-indices from escaping */}
+      <div className="flex-1 relative" style={{ isolation: 'isolate' }}>
         <MapContainer
           center={[46.2044, 6.1432]}
           zoom={14}

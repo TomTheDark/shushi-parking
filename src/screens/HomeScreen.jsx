@@ -4,7 +4,7 @@ import { MapPin, Bell, Car, Bike, Bus, ChevronRight, Navigation, Zap } from 'luc
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { mockParkings, mockNotifications } from '../data/mockData'
+import { mockParkings, mockNotifications, mockUser } from '../data/mockData'
 import BottomNav from '../components/BottomNav'
 
 delete L.Icon.Default.prototype._getIconUrl
@@ -37,13 +37,13 @@ export default function HomeScreen() {
   const unreadCount = mockNotifications.filter(n => !n.read).length
 
   return (
-    <div className="flex flex-col h-screen bg-[#0a0a0a] overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#0a0a0a] overflow-hidden relative">
       {/* Header */}
-      <div className="px-5 pt-12 pb-4 bg-[#0a0a0a] z-10">
+      <div className="px-5 pt-12 pb-4 bg-[#0a0a0a] relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-[#8B8B8B] text-sm">Good morning 👋</p>
-            <h1 className="text-xl font-bold text-white">Hello, User</h1>
+            <h1 className="text-xl font-bold text-white">Hello, {mockUser.name}</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-full px-3 py-1.5">
@@ -82,8 +82,8 @@ export default function HomeScreen() {
         </div>
       </div>
 
-      {/* Map */}
-      <div className="flex-1 relative overflow-hidden" style={{ minHeight: 0 }}>
+      {/* Map — isolation:isolate keeps Leaflet's internal z-indices from escaping */}
+      <div className="flex-1 relative overflow-hidden" style={{ minHeight: 0, isolation: 'isolate' }}>
         <MapContainer
           center={[46.2044, 6.1432]}
           zoom={14}
