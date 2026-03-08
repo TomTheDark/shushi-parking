@@ -49,7 +49,7 @@ export default function ChargingPortsScreen() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-[#FF6B00] font-bold">${port.price.toFixed(2)}<span className="text-[#8B8B8B] text-xs font-normal">/kWh</span></p>
+                  <p className="text-[#FF6B00] font-bold">CHF {port.price.toFixed(2)}<span className="text-[#8B8B8B] text-xs font-normal">/kWh</span></p>
                   <p className={`text-xs ${isAvailable ? 'text-green-400' : 'text-red-400'}`}>
                     {isAvailable ? `${port.available}/${port.total} available` : 'Not available'}
                   </p>
