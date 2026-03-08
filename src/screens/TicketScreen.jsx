@@ -34,19 +34,25 @@ export default function TicketScreen() {
   const zone = booking?.zone || 'White Zone · A-013'
   const dateTime = booking ? `${booking.date} · ${booking.time}` : 'Jan 15, 2024 · 14:00'
   const duration = booking?.duration ?? 2
-  const endTime = booking?.endTime || addHoursToTime(booking?.time, duration)
+  const computedEndTime = addHoursToTime(booking?.time, duration)
+  const endTime = booking?.endTime || computedEndTime || '--:--'
   const vehicle = booking?.vehicle || 'SL 250 ML · GE 123 456'
   const pricePerHour = booking?.pricePerHour ?? 3.5
   const total = booking?.total ?? 7.0
 
-  const durationLabel = `${formatDuration(duration)} (${t('until')} ${endTime})`
+  const durationLabel = endTime !== '--:--'
+    ? `${formatDuration(duration)} (${t('until')} ${endTime})`
+    : formatDuration(duration)
+
+  // ~5 minutes after start for payment processing
+  const paymentTime = addHoursToTime(booking?.time, 5 / 60) || '--:--'
 
   const activityItems = isScheduled
-    ? [{ time: booking?.time || '??:??', event: t('scheduledArrival'), color: 'blue' }]
+    ? [{ time: booking?.time || '--:--', event: t('scheduledArrival'), color: 'blue' }]
     : [
-        { time: booking?.time || '14:00', event: t('entryRecorded'), color: 'green' },
-        { time: addHoursToTime(booking?.time, 0.08), event: t('paymentProcessed'), color: 'blue' },
-        { time: endTime || '16:00', event: t('exitTime'), color: 'orange' },
+        { time: booking?.time || '--:--', event: t('entryRecorded'), color: 'green' },
+        { time: paymentTime, event: t('paymentProcessed'), color: 'blue' },
+        { time: endTime, event: t('exitTime'), color: 'orange' },
       ]
 
   return (

@@ -147,7 +147,7 @@ export default function ProfileScreen() {
               autoFocus
               value={editValue}
               onChange={e => setEditValue(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && saveEdit()}
+              onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); saveEdit() } }}
               className="w-full bg-[#242424] text-white rounded-xl px-4 py-3 mb-4 outline-none border border-[#3a3a3a] focus:border-[#FF6B00] text-sm"
             />
             <div className="flex gap-3">

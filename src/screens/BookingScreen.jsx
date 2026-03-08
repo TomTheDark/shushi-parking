@@ -19,6 +19,10 @@ function formatScheduled(dateStr, timeStr) {
   })
 }
 
+function roundToHalfHour(hours) {
+  return Math.round(hours * 2) / 2
+}
+
 function formatDurationLabel(hours, t) {
   const h = Math.floor(hours)
   const isHalf = hours % 1 !== 0
@@ -201,14 +205,14 @@ export default function BookingScreen() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setHours(h => Math.max(0.5, Math.round((h - 0.5) * 2) / 2))}
+              onClick={() => setHours(h => Math.max(0.5, roundToHalfHour(h - 0.5)))}
               className="w-9 h-9 rounded-full bg-[#242424] flex items-center justify-center"
             >
               <Minus size={16} className="text-white" />
             </button>
             <span className="text-white font-bold w-12 text-center text-sm">{formatDurationShort(hours)}</span>
             <button
-              onClick={() => setHours(h => Math.min(24, Math.round((h + 0.5) * 2) / 2))}
+              onClick={() => setHours(h => Math.min(24, roundToHalfHour(h + 0.5)))}
               className="w-9 h-9 rounded-full bg-[#FF6B00] flex items-center justify-center"
             >
               <Plus size={16} className="text-white" />

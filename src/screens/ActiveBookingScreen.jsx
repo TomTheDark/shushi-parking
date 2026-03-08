@@ -88,10 +88,10 @@ export default function ActiveBookingScreen() {
         </div>
         <div>
           <p className="text-white font-semibold">
-            {selectedVehicle?.model || user.car?.model}
+            {selectedVehicle?.model}
           </p>
           <p className="text-[#8B8B8B] text-xs">
-            {selectedVehicle?.plate || user.car?.plate}
+            {selectedVehicle?.plate}
           </p>
         </div>
       </div>
