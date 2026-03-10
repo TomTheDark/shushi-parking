@@ -4,8 +4,9 @@ import { MapPin, Bell, Car, Bike, Bus, ChevronRight, Navigation, Zap } from 'luc
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { mockParkings, mockNotifications, mockUser } from '../data/mockData'
+import { mockParkings, mockNotifications } from '../data/mockData'
 import BottomNav from '../components/BottomNav'
+import { useUser } from '../context/UserContext'
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -32,6 +33,7 @@ function createParkingIcon(parking) {
 
 export default function HomeScreen() {
   const navigate = useNavigate()
+  const { user, t } = useUser()
   const [activeTab, setActiveTab] = useState('car')
   const [showNotifications, setShowNotifications] = useState(false)
   const unreadCount = mockNotifications.filter(n => !n.read).length
@@ -42,13 +44,13 @@ export default function HomeScreen() {
       <div className="px-5 pt-12 pb-4 bg-[#0a0a0a] relative z-10">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-[#8B8B8B] text-sm">Good morning 👋</p>
-            <h1 className="text-xl font-bold text-white">Hello, {mockUser.name}</h1>
+            <p className="text-[#8B8B8B] text-sm">{t('goodMorning')}</p>
+            <h1 className="text-xl font-bold text-white">{t('hello')}, {user.name}</h1>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1 bg-[#1a1a1a] rounded-full px-3 py-1.5">
               <MapPin size={12} className="text-[#FF6B00]" />
-              <span className="text-xs text-white font-medium">Geneva</span>
+              <span className="text-xs text-white font-medium">Lausanne</span>
             </div>
             <button onClick={() => setShowNotifications(true)} className="relative w-10 h-10 rounded-full bg-[#1a1a1a] flex items-center justify-center">
               <Bell size={18} className="text-white" />
@@ -62,10 +64,10 @@ export default function HomeScreen() {
         {/* Transport tabs */}
         <div className="flex gap-2">
           {[
-            { key: 'car', icon: Car, label: 'Car' },
-            { key: 'bike', icon: Bike, label: 'Bike' },
-            { key: 'bus', icon: Bus, label: 'Bus' },
-          ].map(({ key, icon: Icon, label }) => (
+            { key: 'car', icon: Car, labelKey: 'car' },
+            { key: 'bike', icon: Bike, labelKey: 'bike' },
+            { key: 'bus', icon: Bus, labelKey: 'bus' },
+          ].map(({ key, icon: Icon, labelKey }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
@@ -76,7 +78,7 @@ export default function HomeScreen() {
               }`}
             >
               <Icon size={14} />
-              {label}
+              {t(labelKey)}
             </button>
           ))}
         </div>
@@ -85,7 +87,7 @@ export default function HomeScreen() {
       {/* Map — isolation:isolate keeps Leaflet's internal z-indices from escaping */}
       <div className="flex-1 relative overflow-hidden" style={{ minHeight: 0, isolation: 'isolate' }}>
         <MapContainer
-          center={[46.2044, 6.1432]}
+          center={[46.5196, 6.6322]}
           zoom={14}
           style={{ height: '100%', width: '100%' }}
           zoomControl={false}
@@ -110,9 +112,9 @@ export default function HomeScreen() {
       {/* Bottom sheet */}
       <div className="bg-[#1a1a1a] rounded-t-3xl px-5 pt-4 pb-24 z-10">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-white">Nearby Parkings</h2>
+          <h2 className="text-lg font-bold text-white">{t('nearbyParkings')}</h2>
           <button onClick={() => navigate('/parking-map')} className="text-[#FF6B00] text-sm font-medium flex items-center gap-1">
-            See all <ChevronRight size={14} />
+            {t('seeAll')} <ChevronRight size={14} />
           </button>
         </div>
         <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
@@ -128,7 +130,7 @@ export default function HomeScreen() {
                   parking.availableSpots < 20 ? 'bg-orange-500/20 text-orange-400' :
                   'bg-green-500/20 text-green-400'
                 }`}>
-                  {parking.availableSpots === 0 ? 'Full' : `${parking.availableSpots} left`}
+                  {parking.availableSpots === 0 ? t('fullParking') : `${parking.availableSpots} ${t('spotsLeft')}`}
                 </span>
                 {parking.evChargers > 0 && <Zap size={14} className="text-[#FF6B00]" />}
               </div>
@@ -148,8 +150,8 @@ export default function HomeScreen() {
         <div className="absolute inset-0 bg-black/60 z-50 flex flex-col justify-end" onClick={() => setShowNotifications(false)}>
           <div className="bg-[#1a1a1a] rounded-t-3xl p-5 max-h-[70vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white">Notifications</h2>
-              <button onClick={() => setShowNotifications(false)} className="text-[#8B8B8B] text-sm">Close</button>
+              <h2 className="text-lg font-bold text-white">{t('notifications')}</h2>
+              <button onClick={() => setShowNotifications(false)} className="text-[#8B8B8B] text-sm">{t('close')}</button>
             </div>
             {mockNotifications.map(notif => (
               <div key={notif.id} className={`p-3 rounded-xl mb-2 ${notif.read ? 'bg-[#242424]' : 'bg-[#FF6B00]/10 border border-[#FF6B00]/20'}`}>
