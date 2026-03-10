@@ -288,7 +288,7 @@ export const mockParkings = [
     id: 23,
     name: "Parking Ouchy",
     address: "Avenue d'Ouchy 60, Lausanne",
-    lat: 46.5079, lng: 6.6274,
+    lat: 46.5095, lng: 6.6288,
     totalSpots: 160, availableSpots: 0, pricePerHour: 4.0, evChargers: 6,
     type: "outdoor", zone: "white", spotTypes: ["white"],
     spotSizes: ["large", "medium"], hours: "7h - 21h", rating: 3.9,
@@ -300,7 +300,7 @@ export const mockParkings = [
     id: 24,
     name: "Parking Vidy",
     address: "Route de Vidy 5, Lausanne",
-    lat: 46.5069, lng: 6.6081,
+    lat: 46.5108, lng: 6.6081,
     totalSpots: 200, availableSpots: 130, pricePerHour: 1.5, evChargers: 5,
     type: "outdoor", zone: "white", spotTypes: ["white"],
     spotSizes: ["large", "medium", "small"], hours: "24h", rating: 3.7,
@@ -1328,8 +1328,8 @@ export const mockNotifications = [
 ];
 
 export const mockUser = {
-  name: "Alex Dupont",
-  email: "alex.dupont@example.com",
+  name: "Le Chevalier",
+  email: "lechevalier@example.com",
   phone: "+41 79 123 45 67",
   avatar: null,
   preferredPayment: "Visa •••• 4242",

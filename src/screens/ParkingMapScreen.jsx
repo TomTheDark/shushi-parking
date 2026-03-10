@@ -142,7 +142,7 @@ export default function ParkingMapScreen() {
       {/* Map — isolation:isolate keeps Leaflet's internal z-indices from escaping */}
       <div className="flex-1 relative" style={{ isolation: 'isolate' }}>
         <MapContainer
-          center={[46.2044, 6.1432]}
+          center={[46.5196, 6.6322]}
           zoom={14}
           style={{ height: '100%', width: '100%' }}
           zoomControl={false}

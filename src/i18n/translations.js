@@ -6,6 +6,17 @@ export const translations = {
     bookings: 'Bookings',
     profile: 'Profile',
 
+    // HomeScreen
+    goodMorning: 'Good morning 👋',
+    hello: 'Hello',
+    nearbyParkings: 'Nearby Parkings',
+    seeAll: 'See all',
+    car: 'Car',
+    bike: 'Bike',
+    bus: 'Bus',
+    close: 'Close',
+    spotsLeft: 'left',
+
     // ParkingDetails / general
     bookNow: 'Book Now',
     navigate: 'Navigate',
@@ -129,6 +140,17 @@ export const translations = {
     search: 'Recherche',
     bookings: 'Réservations',
     profile: 'Profil',
+
+    // HomeScreen
+    goodMorning: 'Bonjour 👋',
+    hello: 'Bonjour',
+    nearbyParkings: 'Parkings à proximité',
+    seeAll: 'Tout voir',
+    car: 'Voiture',
+    bike: 'Vélo',
+    bus: 'Bus',
+    close: 'Fermer',
+    spotsLeft: 'disponibles',
 
     // ParkingDetails / general
     bookNow: 'Réserver',
